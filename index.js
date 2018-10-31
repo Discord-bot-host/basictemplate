@@ -3,8 +3,31 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 const fs = require('fs');
 const moment = require('moment'); // the moment package. to make this work u need to run "npm install moment --save 
-const ms = require("ms"); // npm install ms -s
+const ms = require("ms"); // npm install ms -
+const prefix = '`' // The text before commands
 
+const commands1 = {
+	purge: {
+		usage: prefix + "purge (num)",
+		description: `Delete some messages.`
+	},
+	botinfo: {
+		usage: prefix + "botinfo",
+		description: `Get info on the bot.`
+	},
+	serverinfo: {
+		usage: prefix + "serverinfo",
+		description: `Get info on the server.`
+	},
+	member: {
+		usage: prefix + "member (@member)",
+		description: `Get info on a member.`
+	},
+	roleinfo: {
+		usage: prefix + "roleinfo (@role)",
+		description: `Get info on a role.`
+	},
+};
 // Listener Event: Bot Launched
 bot.on('ready', () => {
     console.log('Power Level Stabilised.') // Runs when the bot is launched
@@ -14,28 +37,16 @@ bot.on('ready', () => {
     //generalchat.send(`Topic of the week: `)
     
     
-    bot.user.setActivity("prefix ` | Blocks Awakens") // Diff per bot
+    bot.user.setActivity("prefix " + prefix + " | Blocks Awakens") // Diff per bot
 
 });
 
-// event listener: new guild members
-bot.on('guildMemberAdd', member => {
-    // Send the message to a designated channel on a server:
-    const channel = member.guild.channels.find('name', 'pending');
-    const channelinfo = member.guild.channels.find('name', 'info');
-    // Do nothing if the channel wasn't found on this server
-    if (!channel) return;
-    // Send the message, mentioning the member
-    channel.send(`Welcome ${member}! You can apply to get whitelisted, by clicking the link provided here: ${channelinfo}. Your answers must be a paragraph long. Good luck! `);
-    
-  });
 
 // Event listener: Message Received ( This will run every time a message is received)
 bot.on('message', async message => {
     // Variables
     let sender = message.author; // The person who sent the message
     let msg = message.content.toLowerCase();
-    let prefix = '`' // The text before commands
     if (bot.user.id === sender.id) { return }
     let nick = sender.username
     let Owner = message.guild.roles.find('name', "Owner")    
@@ -44,6 +55,35 @@ bot.on('message', async message => {
     
     // commands
 
+     if(msg.split(' ')[0] === prefix + 'help'){
+	console.log('HELP INITIATED!')
+      	let args = msg.split(" ").slice(1);
+	console.log(args[0])
+	
+	if(!args[0]){
+		let embed = new Discord.RichEmbed()
+		.setDescription("All available commands")
+		.setColor(0x00fff3)
+		for(var name in commands1){
+			embed.addField("Command:", name)
+		}
+		await message.channel.send(embed)
+		return await message.channel.send("For info on a specific command, do " + prefix + "help (command)")
+	}
+	for(var name in commands1){
+		if(args[0] === name){
+			var commandname = name;
+			let embed = new Discord.RichEmbed()
+			.setDescription(name)
+			.setColor(0x00fff3)
+			.addField("Usage:", commands1[commandname].usage)
+			.addField("Description:", commands1[commandname].description)
+			return await message.channel.send(embed)
+		}
+    	}
+	if(args[0]) return message.channel.send("Hm, check your spelling and try again!");
+    };
+	
     // Ping / Pong command
     if (msg === prefix + 'ping') {
       if(sender.id === "186487324517859328" || message.member.roles.has(Owner.id)) {
@@ -65,16 +105,6 @@ bot.on('message', async message => {
             });
         }else {return}
     };
-
-
-    //timed message
-    //const generalchat = bot.channels.get("469490700845580298")
-    //let timer = bot.setInterval(timedMessage, /*172800000*/10800000);
-    //let timer2 = bot.setInterval(timedMessage2, 300000);
-    
-    //function timedMessage() {
-      //generalchat.send(`Topic of the week: `)
-      //.catch(console.error)};
 
 
     //bot info command
